@@ -2,6 +2,7 @@ package com.company.customerdataservice.controller;
 
 import com.company.customerdataservice.model.Customer;
 import com.company.customerdataservice.repository.CustomerRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,14 +74,14 @@ public class CustomerControllerTests {
         Mockito.when(customerRepository.save(Mockito.any(Customer.class)))
                 .thenReturn(customer);
 
-
+        ObjectMapper objectMapper = new ObjectMapper();
         // ACT
-
         mockMvc.perform(
-                        post("/customer")               // Perform the POST request
-                                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())                          // Print results to console
-                .andExpect(status().isCreated());             // ASSERT (status code is 201)
+                        post("/customer")                          // Perform the POST request
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(customer)))    // Request payload as JSON
+                .andDo(print())                             // Print results to console
+                .andExpect(status().isCreated());  // 201 code
 
     }
 
@@ -104,11 +105,13 @@ public class CustomerControllerTests {
         Mockito.when(customerRepository.save(Mockito.any(Customer.class)))
                 .thenReturn(customer);
 
+        ObjectMapper objectMapper = new ObjectMapper();
 
         // ACT
         mockMvc.perform(
-                        put("/customer/update/1")               // Perform the PUT request
-                                .contentType(MediaType.APPLICATION_JSON))
+                        put("/customer/update/{id}", customer.getId())               // Perform the PUT request
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(customer)))
                 .andDo(print())                          // Print results to console
                 .andExpect(status().isNoContent());             // ASSERT (status code is 204)
 
